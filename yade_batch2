@@ -1,5 +1,0 @@
-./install/bin/yade-1.14.0 -j4 vpp_auto_batch.py 0.8
-ls -lh wyniki/|mail -s "Koniec zadanie 0p8" kontakt@fileo.pro 
-#./install/bin/yade-1.14.0 -j4 vpp_auto_batch.py 0.6
-#ls -lh wyniki/|mail -s "Koniec zadanie 0p6 " kontakt@fileo.pro
- ls -lh wyniki/|mail -s "Koniec wszystkich zadana yade_batch2" kontakt@fileo.pro 

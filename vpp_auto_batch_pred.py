@@ -4,17 +4,17 @@ os.environ['OMP_NUM_THREADS']='4'
 import math
 import random
 
-##parametr z konsoli najczesciej mnoznik
+##paramters taken from auto batch console -> mnoznik
 mnoznik = 1
 if len(sys.argv)== 2:
  mnoznik = float(sys.argv[1])
 
 # DATA COMPONENTS
 
-# wspolczynniki tlumienia
+attenuation coefficients
 cn0=50000 
 cs0=50000
-# wspolczynniki kohezji
+# cohesion coefficient
 nch=1e15
 sch=1e15
 
@@ -26,10 +26,10 @@ kula=['kula',Vector3(1,1,1)]
 mass_scale = 1#100 
 
 
-promien_k = 0.00593/2  #promien ziaren
-promien_f = 0.00593/2/3  #promien folii [m] grubosc folii 0.00015
+promien_k = 0.00593/2  #grain radious
+promien_f = 0.00593/2/3  #grain foil radious [m] 
 
-gr_f = 0.00015 # grubosc folii [m]
+gr_f = 0.00015 # thickness foil [m]
 young_f = 2*1.2218e8*gr_f/(promien_f) # [Pa]
 poisson_f = 0.25
 density_f = 1000/promien_f * gr_f * mass_scale # [kg/m^3/mass_scale]
@@ -38,18 +38,18 @@ young_k = 2.7e9 # [Pa]
 poisson_k = 0.25
 density_k = 2689 * mass_scale # [kg/m^3/mass_scale]
 
-frictAngle = atan(0.9)# po ulozeniu kul zmiana tarcia.
-frictAngleFoil = 0 #tarcie folii
-ratio_upak =  0.65 #0.62 #ratio upakowania /ile kul ma byc wygenerowanych 
+frictAngle = atan(0.9)# after the grains are arranged, the friction changes
+frictAngleFoil = 0 #foil friction
+ratio_upak =  0.65 #packing ratio / how many grains to be generated
 
 
 
 
-srednica_probki = 0.051#/2   # [m]
-wysokosc_probki = 0.105#/2 # [m]
+srednica_probki = 0.051 #sample diameter [m]
+wysokosc_probki = 0.105 #sample height [m]
 
-wys_fixed = 1 # liczba kul folii nieruchomych
-wys_sciany_doc = 8*promien_k #wysokosc sciany dociskajacej
+wys_fixed = 1 # number of foil layers to be fixed 
+wys_sciany_doc = 8*promien_k # initial height of the wall pressing the granulate
 
 
 
@@ -62,27 +62,27 @@ obw_probki = 2*math.pi*promien_probki
 ###############################
 
 #########################################
-#########DO UZUPELNIENIA ################
+#########To BE SET ################
 pressureDirection=Vector3(0,0,1)
 pAtm = 100000 #[Pa]
-pressureValue = mnoznik * pAtm # [Pa] 
+pressureValue = mnoznik * pAtm # [Pa] #If you use autobatch to start few compilation with different presseruvalue - just chang mnoznik from console
 #########################################
 
 
-l_kul = int(math.floor(obw_probki/(2.*promien_f)))+1 #liczba kul w obwodzie
+l_kul = int(math.floor(obw_probki/(2.*promien_f)))+1 #number of spheres in the circumference
 
-#odejmuje wysokosc kul zafiksowanych
+#Subtracting the height of the fixed spheres
 wysokosc_probki = wysokosc_probki - wys_fixed * promien_f*2
 
-wys = int(math.floor(wysokosc_probki/(promien_f*2))) # wysokosc folii (liczba srednic kul)
+wys = int(math.floor(wysokosc_probki/(promien_f*2))) # "Foil height (number of sphere diameters)
 
-k_wys = wys*2*promien_f*1.25 # wysokosc kul do dosypania [m]
+k_wys = wys*2*promien_f*1.25 # Height of spheres to be added [m]
 
 wys=wys+1
 
 
 
-#########################################
+######################################### Path to result files
 nazwaPliku = "wyniki/frictionS/pila_Ampl_1cm_upak_65_popr_cylWfolii_predkosc_m8_Knratio0p2_press_"+str(mnoznik)+"_"+str(pressureValue)+"_"+str(l_kul)+"_"+str(wys)+"_"
 nazwaPlikuIter = "wyniki/frictionS/pilaIter_Ampl_1cm_upak_65_popr_cylWfolii_predkosc_m8_Knratio0p2_press_"+str(mnoznik)+"_"+str(pressureValue)+"_"+str(l_kul)+"_"+str(wys)+"_"
 ############### Parametry zapisu c++ ########
@@ -122,32 +122,32 @@ print liczbaKulDuzych * v_kuli /v_probki * 100
 
 
 #########################################
-#parametry ruchu sciany gornej
-amplituda = 0.01 #0.05 * wysokosc_probki #1*promien_f # [m]
+#Parameters of the upper wall movement.
+amplituda = 0.01 #[m]
 omega = 2.84 * 5  # [1/s]
 time = 0. # [s]
-idGora = 0 # id sciany do dociskania
+idGora = 0 # ID of the wall for pressing
 
 
-velPila = 0.000833333 * 8 # [m/s] predkosc obnizania przy wymuszeniu pila maszyna 50 mm na min
-posPila = amplituda / 2. #start ruchu
+velPila = 0.000833333 * 8 # [m/s] Lowering speed under sawtooth forcing.
+posPila = amplituda / 2. #start of movement
 
-direct = -1 #kierunek ruchu -1 do dolu + do gory
+direct = -1 #Direction of movement: -1 for down, +1 for up
 
 
 vObnizenia = 0.005 *10 # [m/s]
-timeToStart = 0#0.1 # czas ktory jest odczekiwany do startu - czas zerowany jezeli kula nie przeskoczy w tym czasie zadna - obnizam folie [s]
-timeToStartPressure = 1. #czas ktory jest odczekiwany do startu po wlaczeniu cisnienia [s]
+timeToStart = 0#0.1 # Time waited before start – time is reset if no sphere jumps within this period – lowering the foil [s].
+timeToStartPressure = 1. #Time waited before start after applying pressure [s].
 dtimeToStart = 0 # [s]
-tmpDtimeToStart = 0 #tmp dla czasu - czas z kroku poprzedniego [s]
-stage = 0 #0 - usypywanie, 2 - obnizenie sciany , 4 - ruch calosci
+tmpDtimeToStart = 0 #Temporary time – time from the previous step [s].
+stage = 0 #Stages of the simmulation 0 - pouring, 2 - lowering the wall, 4 - moving the entire structure.
 
-relGora = -promien_f # procent obnizenia gornej sciany przy dociskaniu
-relFolia = 0.007 # ile mm obnizenia folii i sciany (tak jak przy wkladaniu do maszyny)
+relGora = -promien_f # Percentage of upper wall lowering during pressing.
+relFolia = 0.007 #How many mm the foil and wall are lowered (same as when inserting into the machine).
 
-#parametry zmiany czasu obliczen 
-timeChange=0.13 #po jakim czasie ma byc zmienione O.dt
-timeChangeValue = 1 #ile razy ma byc zmniejszone -1 - zmiana nie nastepuje
+#Parameters for changing computation time.
+timeChange=0.13 #After what time O.dt should be changed.
+timeChangeValue = 1 #How many times it should be reduced -1 means no change occurs.
 
 O.materials.append(VppCohFrictMat(young=young_f, poisson=poisson_f, density=density_f, frictionAngle=radians(0),normalCohesion=nch, shearCohesion=sch, momentRotationLaw=True, knRatio=0.2,foilType=1, label='folia'))
 
@@ -155,19 +155,16 @@ O.materials.append(FrictMat(young=1e9, poisson=.25, frictionAngle=0, density=100
 
 O.materials.append(CohFrictMat(young=young_k, poisson=poisson_k, density=density_k, frictionAngle=radians(0),normalCohesion=0, shearCohesion=0, momentRotationLaw=False, label='kula'))
 
-#momentRotationLaw = False - wtedy mamy obroty;
+#momentRotationLaw = False - then we have rotations
 
 import math
 mask_f = 3 #         1 1 0
 mask_wd = 2#         0 1 0
 mask_wg = 4#         0 0 1
-mask_k=10 #          0 1 0 1  maska kul przy ustawianiu
-mask_ku= 14 #        0 1 1 1    maska kuli po przekroczeniu scisny gornej
-maska_cyl = 8 #      0 0 0 1   maska_cylindra 
-maska_cylfoil = 1 #  1 0 0   maska_cylindra wewnatrz folii
-#relGora = (wys+1 + wys_fixed) * promien_f * (relGora/100.) # odleglosc obnizenia [m]
-#relFolia = (wys+1 + wys_fixed) * promien_f * (relFolia/100.) # odleglosc obnizenia folii [m]
-
+mask_k=10 #          0 1 0 1    Sphere mask during setup.
+mask_ku= 14 #        0 1 1 1    Sphere mask after exceeding upper wall.
+maska_cyl = 8 #      0 0 0 1   Cylinder mask 
+maska_cylfoil = 1 #  1 0 0   Cylinder mask inside the foil
 
 
 idFoliiStart = 0
@@ -181,7 +178,7 @@ fi =  2*pi / l_kul # [rad]
 fi2 = 0 # [rad] do obrotu kul miedzy warstwamifo	
 
 promien = promien * 0.99 # [m]
-dtt = 0 # zmienna do przechowania czasu [s]
+dtt = 0 # Variable for  time [s].
 #fi = 5.81
 
 
@@ -195,7 +192,7 @@ wys = wys+1 # korekcja wysokosci aby bylo tyle kul ile zadeklarowalismy wysokosc
 
 
 ######################################################
-### USTAWIENIE PIERWSZEJ NIERUCHOMEJ WARSTWY FOLII
+### SETTING THE FIRST FIXED LAYER OF FOIL.
 ######################################################
 idFoliiDolStart = 0
 for k in range(l_kul):
@@ -215,13 +212,11 @@ print(idFoliiDolKoniec)
 
 	
 ######################################################
-### USTAWIENIE POZOSTALYCH WARSTW FOLII
+### SETTING THE REMAINING LAYERS OF FOIL.
 ######################################################
 y=0
 x = 0
-######################################################
-### USTAWIENIE POZOSTALYCH WARSTW FOLII
-######################################################
+
 for k in range(l_kul):
 	for z in range(2,wys):
 		if(k%2 == 0 and z%2 ==0):
@@ -237,7 +232,7 @@ for k in range(l_kul):
 			
 	
 ######################################################
-### USTAWIENIE OSTATNICH NIERUCHOMYCH WARSTW FOLII
+### SETTING THE LAST FIXED LAYERS OF FOIL.
 ######################################################	
 idFoliiStart = O.bodies[-1].id+1
 
@@ -259,7 +254,7 @@ print("koniec obreczy")
 print(idFoliiKoniec)
 
 ######################################################
-### USTAWIENIE sciany na gorze jezeli sciana ma byc ustawiona nad forlia to w tym miejscu
+### SETTING the wall at the top, if the wall is to be positioned above the foil, then at this point.
 ######################################################
 #O.bodies.append(utils.wall(max([b.state.pos[2] + wys_sciany_doc for b in O.bodies if isinstance(b.shape,Sphere)]),axis=2,sense=-1,material='frictionlessWalls',mask = mask_wg))
 #idGora = O.bodies[-1].id
@@ -267,7 +262,7 @@ print(idFoliiKoniec)
 
 		
 ######################################################
-### USTAWIENIE sciany na dole
+### SETTING the wall at the bottom.
 ######################################################
 O.bodies.append(utils.wall(min([b.state.pos[2]-b.shape.radius for b in O.bodies if isinstance(b.shape,Sphere)]),axis=2,sense=1,material='frictionlessWalls',mask = mask_wd))
 idDol = O.bodies[-1].id
@@ -300,10 +295,10 @@ def set_spheres():
 		startZ+=2.1*promien_k
 
 ######################################################
-### dodanie kul duzych
+### Adding grains spheres.
 ######################################################
 
-first = O.bodies[-1].id+1#len(O.bodies)-1 #do zmian parametrow kuli pierwszy element
+first = O.bodies[-1].id+1#len(O.bodies)-1 #For changing sphere parameters, the first id of grains.
 from yade import pack
 sp=pack.SpherePack()
 
@@ -339,7 +334,7 @@ liczba_kul_dodanych = last-first
 print liczba_kul_dodanych
 
 ######################################################
-### USTAWIENIE sciany na gorze jezeli sciana ma byc ustawiona nad forlia to w tym miejscu
+### SETTING the wall at the top, if the wall is to be positioned above the foil, then at this point
 ######################################################
 O.bodies.append(utils.wall(max([b.state.pos[2] + wys_sciany_doc for b in O.bodies if isinstance(b.shape,Sphere)]),axis=2,sense=-1,material='frictionlessWalls',mask = mask_wg))
 idGora = O.bodies[-1].id
@@ -347,7 +342,7 @@ print "********Id gora **********"
 print idGora
 
 ######################################################
-### dodanie cylindra do usypywania
+### Adding a cylinder for pouring.
 ######################################################
 idCylinderStart = O.bodies[-1].id+1
 
@@ -365,7 +360,7 @@ for k in range(idCylinderStart,idCylinderKoniec+1):
 	print("Id Cylinder do usypawnia kul = ",k)
 
 ######################################################
-### dodanie cylindra do folii
+### Adding a cylinder to the foil
 ######################################################
 idCylinderFoliaStart = O.bodies[-1].id+1
 
@@ -386,7 +381,7 @@ print idCylinderFoliaKoniec
 
 
 ######################################################
-### Ustawienie czasu
+### time setiings
 ######################################################
 O.dt=utils.PWaveTimeStep()
 
@@ -403,7 +398,7 @@ def ChangeTime():
 
 
 ######################################################
-### Funkcja zmieniajaca polozenie folii - wstepne ugiecie
+### Function for changing the foil position – initial bending.
 ######################################################
 def ChangePosFoil():
 	global time,stage
@@ -423,7 +418,7 @@ def ChangePosFoil():
 
 
 ######################################################
-### Funkcja obnizajaca scine - wstepne ugiecie
+### Function for lowering the wall – initial bending
 ######################################################
 def PreChangePos():
 	global stage
@@ -442,7 +437,7 @@ def PreChangePos():
 			
 	
 ######################################################
-### Funkcja wlaczajaca cisnienie folii
+### Function for activating foil pressure.
 ######################################################
 def PressureOn():
 	global tmpDtimeToStart, stage
@@ -462,7 +457,7 @@ def PressureOn():
 		
 	
 ######################################################
-### Funkcja czekajaca na wlaczenie ruchu po wlaczeniu cisnienia folii
+### Function waiting to enable movement after activating foil pressure
 ######################################################
 def PressureTimeOn():
 	global tmpDtimeToStart, stage, timeToStartPressure				
@@ -480,7 +475,7 @@ def PressureTimeOn():
 				print O.time
 
 ######################################################
-### Funkcja zmieniajaca id kul po przekroczeniu gornej sciany - tak zeby sie nie wysypywaly
+### Function changing the ID of spheres after exceeding the upper wall to prevent spilling.
 ######################################################
 def ChangeMask():
 	global dtimeToStart, stage, tmpDtimeToStart, dtt,resetNeighbour
@@ -490,7 +485,7 @@ def ChangeMask():
 				if (O.bodies[k].state.pos[2]+(1.002*promien_k))<O.bodies[idGora].state.pos[2]:
 					O.bodies[k].mask = mask_ku
 					O.bodies[k].shape.color=(1,0,0)
-					tmpDtimeToStart = O.time #jezeli kula przeskoczyla pobieram aktualny czas
+					tmpDtimeToStart = O.time #If a sphere jumps, I retrieve the current time.
 					dtt = O.dt
 					
 			
@@ -509,7 +504,7 @@ def ChangeMask():
 		dtimeToStart = O.time - tmpDtimeToStart
 		
 ######################################################
-### Funkcja zmieniajaca polozenie gornej sciany
+### Function for changing the position of the upper wall.
 ######################################################
 def ChangePos():
 	global time
@@ -549,7 +544,7 @@ def ChangePosPila():
 
 
 ######################################################
-### Funkcja zmieniajaca polozenie gornej sciany
+### Function enabling simulation pause after a specified time.
 ######################################################
 def PauseCheck():
 	global pauseOn, savedFiles, EndTime
@@ -563,9 +558,9 @@ def PauseCheck():
 
 print("DT do zapisu")
 step = O.dt
-PiterSave =500 #ile zapisow w pliku
+PiterSave =500 #Number of records in the file.
 PtimeSr = 0.005#100*step
-PtimeStart = 0.0 #start zapisu
+PtimeStart = 0.0 #Start of recording
 PdeltaTime = (4*(20/8)-(PtimeSr * PiterSave) ) / PiterSave
 
 #sinus (((1/omega)*2*pi) - (100*PtimeSr)) / 100 #1000*step #skok miedzy zapisami
@@ -579,9 +574,9 @@ DeltaTimeAllBody= 3*(PtimeSr + PdeltaTime)
 
 
 
-pauseOn = True # jezeli true to wlaczy sie pausa symaulacji - zmiana na false pozwoli na uruchomienie recznie
+pauseOn = True # If true, the simulation pause will be enabled – changing to false will allow manual resumption
 
-savedFiles = 2 # ile ma byc wykonanych zapisow EndTime musi byc wiekszy niz czas do zapisow
+savedFiles = 2 # Number of recordings to be performed; EndTime must be greater than the recording time
 EndTime = 1000#PtimeStart + IleZapisow *(((PiterSave) * (PdeltaTime+PtimeSr))+PdeltaTime)
 
 
@@ -699,7 +694,7 @@ O.engines=[
 # and the motion can be observed
 
 
-##########################URUCHOMIENIE ZAPISU OD RAZU
+##########################IMMEDIATE START OF RECORDING
 #saveIter.engineOn=True
 #saveBody.engineOn=True
 

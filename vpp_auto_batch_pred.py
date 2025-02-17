@@ -30,7 +30,7 @@ promien_k = 0.00593/2  #grain radious
 promien_f = 0.00593/2/3  #grain foil radious [m] 
 
 gr_f = 0.00015 # thickness foil [m]
-young_f = 2*1.2218e8*gr_f/(promien_f) # [Pa]
+young_f = 2*1.2218e8*gr_f/(2*promien_f)# [Pa]
 poisson_f = 0.25
 density_f = 1000/promien_f * gr_f * mass_scale # [kg/m^3/mass_scale]
 

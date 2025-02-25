@@ -17,3 +17,6 @@ Instalation:
 - Use the included example scripts to run the VPP damper analysis
 
 
+
+#Mathematica postprocessing 
+Download the file postprocessing.m and the required files from 10.5281/zenodo.14917354

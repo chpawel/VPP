@@ -28,3 +28,8 @@ To conduct an analysis of the sample damper, after successfully compiling the pr
 ./install/bin/yade-1.14.0 -j4 vpp_auto_batch.py 
 
 In the file *yade_batch*, you will find an example of how to start the analysis with various parameters, one by one.
+
+## Images from analysis
+![Screenshot of the sample analysis.](https://github.com/chpawel/VPP/blob/main/images/sample_A.PNG)
+
+![Screenshot of the sample analysis.](https://github.com/chpawel/VPP/blob/main/images/sample_B.PNG)

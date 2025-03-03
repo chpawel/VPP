@@ -18,5 +18,13 @@ Instalation:
 
 
 
-#Mathematica postprocessing 
+## Mathematica postprocessing 
 Download the file postprocessing.m and the required files from 10.5281/zenodo.14917354
+
+## Analysis file 
+A sample file with a programmed analysis of the VPP damper has been placed in the repository.
+
+To conduct an analysis of the sample damper, after successfully compiling the program, run the code in the console.
+./install/bin/yade-1.14.0 -j4 vpp_auto_batch.py 
+
+In the file *yade_batch*, you will find an example of how to start the analysis with various parameters, one by one.

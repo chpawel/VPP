@@ -1,6 +1,6 @@
 ./install/bin/yade-1.14.0 -j4 vpp_auto_batch.py 0.2
-ls -lh wyniki/|mail -s "Koniec zadanie 0p2" kontakt@fileo.pro 
+ls -lh wyniki/|mail -s "End of the task 0p2" your_Mail_here
 #./install/bin/yade-1.14.0 -j4 vpp_auto_batch.py 0.4
-#ls -lh wyniki/|mail -s "Koniec zadanie 0p4" kontakt@fileo.pro 
+#ls -lh wyniki/|mail -s "End of the task 0p4" your_Mail_here
 
-ls -lh wyniki/|mail -s "Koniec wszystkich zadan yade_batch" kontakt@fileo.pro 
+ls -lh wyniki/|mail -s "End of all tasks in yade_Batch" your_Mail_here
